@@ -1,34 +1,75 @@
 #include <cstdio>
 #include <iostream>
-#include <vector>
-#include <algorithm>
 
-int max_sum(std::vector< std::vector<int> > nums, int total) {
-    return total;
-}
+#define VERBOSE
 
 int main(int argc, char* argv[]) {
+    unsigned int T, N;
+    unsigned int j, k, n, m;
+    unsigned long int B;
+    unsigned long int x;
+    unsigned int Ns[10];
+    unsigned int Nj;
+    unsigned int* Ks[10];
+    unsigned int* Kj;
 
-    std::vector< std::vector<int> > nums;
-    int total = 60;
-    std::vector<int> a;
-    a.push_back(0);
-    a.push_back(1);
-    a.push_back(100);
-    nums.push_back(a);
+    // repeat T times
+    std::cin >> T;
+    while (T--) {
+        // total sum and num of rows in this test
+        std::cin >> B >> N;
+        #ifdef VERBOSE
+            printf("B=%lu, N=%d x [", B, N);
+        #endif
 
-    std::vector<int> b;
-    b.push_back(0);
-    b.push_back(10);
-    b.push_back(50);
-    nums.push_back(b);
+        // get length of each row
+        for (j=0; j<N; ++j) {
+            std::cin >> k;
+            #ifdef VERBOSE
+                printf(" %d", k);
+            #endif
+            Ns[j] = k;
+            Ks[j] = new unsigned int[k+1];
+        }
+        #ifdef VERBOSE
+            printf(" ]\n");
+        #endif
 
-    std::vector<int> c;
-    c.push_back(0);
-    c.push_back(10);
-    c.push_back(50);
-    nums.push_back(c);
+        // read each element and insert sort
+        for (j=0; j<N; ++j) {
+            Kj = Ks[j];
+            Nj = Ns[j];
+            for (k=0; k<Nj; ++k) {
+                std::cin >> x;
+                for (n=0; n<k; ++n) {
+                    if (x > Kj[n]) {
+                        break;
+                    }
+                }
+                for (m=k; m>n; --m) {
+                    Kj[m] = Kj[m-1];
+                }
+                Kj[m] = x;
+            }
+        }
+        Kj[Nj] = 0;
 
-    printf("%d\n", max_sum(nums, total));
+        // print sorted rows
+        #ifdef VERBOSE
+            for (j=0; j<N; ++j) {
+                printf(" * ");
+                Nj = Ns[j];
+                for (k=0; k<=Nj; ++k) {
+                    printf("%2d  ", Ks[j][k]);
+                }
+                printf("\n");
+            }
+        #endif
+    }
+
+    for (j=0; j<N; ++j) {
+        delete[] Ks[j];
+    }
+
     return 0;
 }
