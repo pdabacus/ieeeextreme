@@ -244,7 +244,7 @@ int main(int argc, char* argv[]) {
             if (destx[indices[k]] > destx[indices[maxx]]) {
                 maxx = k;
             }
-            if (posx[indices2[k]] > posx[indices2[maxx]]) {
+            if (posx[indices2[k]] > posx[indices2[maxx2]]) {
                 maxx2 = k;
             }
         }
