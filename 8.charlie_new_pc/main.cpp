@@ -1,7 +1,16 @@
 #include <cstdio>
 #include <iostream>
 
-#define VERBOSE
+//#define VERBOSE
+
+unsigned long int sum(unsigned int N, unsigned int* s, unsigned int* Ks[]) {
+    unsigned int j;
+    unsigned long int B = 0;
+    for (j=0; j<N; ++j) {
+        B += Ks[j][s[j]];
+    }
+    return B;
+}
 
 int main(int argc, char* argv[]) {
     unsigned int T, N;
@@ -12,6 +21,7 @@ int main(int argc, char* argv[]) {
     unsigned int Nj;
     unsigned int* Ks[10];
     unsigned int* Kj;
+    unsigned int best[10];
 
     // repeat T times
     std::cin >> T;
@@ -65,6 +75,24 @@ int main(int argc, char* argv[]) {
                 printf("\n");
             }
         #endif
+    }
+
+    for (j=0; j<N; ++j) {
+        best[j] = 0;
+    }
+    x = sum(N, best, Ks);
+
+    #ifdef VERBOSE
+        printf("best = [ ");
+        for (j=0; j<N; ++j) {
+            printf("%d ", best[j]);
+        }
+        printf("]\n");
+        printf("sum = %lu\n", x);
+    #endif
+
+    if (x < B) {
+        printf("%lu\n", x);
     }
 
     for (j=0; j<N; ++j) {
