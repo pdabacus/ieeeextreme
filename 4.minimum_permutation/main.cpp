@@ -1,15 +1,21 @@
 #include <cstdio>
 #include <iostream>
 #include <vector>
+#include <queue>
 
-#define VERBOSE
+//#define VERBOSE
 
 int main(int argc, char* argv[]) {
     unsigned int N, M;
     unsigned int x;
-    std::vector<unsigned int> A, S;
-    std::vector<unsigned int>::iterator i, end;
     unsigned int j;
+    std::vector<unsigned int> A;
+    std::vector<unsigned int>::iterator i, end;
+    std::priority_queue<
+        unsigned int,
+        std::vector<unsigned int>,
+        std::greater<unsigned int>
+    > S;
 
     std::cin >> N >> M;
     #ifdef VERBOSE
@@ -31,28 +37,38 @@ int main(int argc, char* argv[]) {
         printf("]\n");
     #endif
 
-    // build S sorted small to large
-    std::cin >> x;
-    S.push_back(x);
-    for (j=1; j<M; ++j) {
+    // build S priority queue
+    for (j=0; j<M; ++j) {
         std::cin >> x;
-        end = S.end();
-        for (i=S.begin(); i!=end; ++i) {
-            if (*i > x) {
-                S.insert(i, x);
-                break;
-            }
-        }
+        S.push(x);
     }
 
     #ifdef VERBOSE
-        end = S.end();
-        printf("S = [ ");
-        for (i=S.begin(); i!=end; ++i) {
-            printf("%u ", *i);
-        }
-        printf("]\n");
+        printf("S top = %u\n", S.top());
     #endif
+
+    // print 2 vectors in taking from next smallest int
+    i = A.begin();
+    end = A.end();
+    while (i != end && !S.empty()) {
+        x = S.top();
+        if (x < *i) { // s smaller than a
+            printf("%u ", x);
+            S.pop();
+        } else {
+            printf("%u ", *(i++));
+        }
+    }
+
+    for (; i!=end; ++i) {
+        printf("%u ", *i);
+    }
+
+    while (!S.empty()) {
+        printf("%u ", S.top());
+        S.pop();
+    }
+    printf("\n");
 
     return 0;
 }
