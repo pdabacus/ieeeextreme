@@ -17,8 +17,18 @@ int main(int argc, char* argv[]) {
         printf("N=%lu, a=%lu, b=%lu\n", N, a, b);
     #endif
 
+    if (N % b == 0) {
+        n = N / b;
+        printf("YES\n");
+        for (k=0; k<n; ++k) {
+            printf("%lu ", b);
+        }
+        printf("\n");
+        return 0;
+    }
+
     max_len = N / a;
-    for (n=N/b; n<=max_len; ++n) {
+    for (n=N/b+1; n<=max_len; ++n) {
         min = n * a;
         max = n * b;
         #ifdef VERBOSE
