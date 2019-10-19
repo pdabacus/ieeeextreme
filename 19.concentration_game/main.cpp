@@ -22,7 +22,6 @@ int main(int argc, char* argv[]) {
     int* a;
     int x, y;
     std::map<int,int> seen;
-    const char* resp;
     std::string str;
 
 
@@ -132,13 +131,16 @@ int main(int argc, char* argv[]) {
 
         //delete resp;
 
-        printf("[ ");
-        for (j=1; j<=L; ++j) {
-            printf("%d ", cards[j]);
-        }
-        printf("]\n\n");
+        #ifdef VERBOSE
+            printf("[ ");
+            for (j=1; j<=L; ++j) {
+                printf("%d ", cards[j]);
+            }
+            printf("]\n\n");
+        #endif
     }
 
     return 0;
 }
+
 
