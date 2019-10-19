@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
         printf("N=%u, M=%u\n", N, M);
     #endif
 
+    // malloc matrix on heap
     bool** hive = new bool*[N];
     for (j=0; j<N; ++j) {
         m = M - (j % 2);
@@ -45,7 +46,7 @@ int main(int argc, char* argv[]) {
         print_hive(N, M, hive);
     #endif
 
-    // free heap
+    // free matrix
     for (j=0; j<N; ++j) {
         delete[] hive[j];
     }
