@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 
-//#define VERBOSE
+#define VERBOSE
 
 //Move m = {1, 2, 'A'};
 //print_move(&m);

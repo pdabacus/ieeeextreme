@@ -18,7 +18,7 @@ RM      		= rm -rf
 OBJ     		= $(patsubst %.cpp,$(BIN)%.o,$(SOURCES))
 
 all:    		$(TARGET)
-				@./$(TARGET) < inp.txt
+				@./$(TARGET) < inp.txt.txt
 
 # compile .cpp source files to objects (.o)
 $(BIN)%.o: 		%.cpp $(HEADERS)
