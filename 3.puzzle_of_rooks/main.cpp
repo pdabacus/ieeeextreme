@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 
-#define VERBOSE
+//#define VERBOSE
 
 //Move m = {1, 2, 'A'};
 //print_move(&m);
@@ -395,7 +395,6 @@ int main(int argc, char* argv[]) {
 
     // reenable
     if (disabled >= 0) {
-        // reenable old
         m = {disabledx, disabledy, 'P'};
         moves.push_back(m);
         #ifdef VERBOSE
@@ -454,14 +453,15 @@ int main(int argc, char* argv[]) {
         #endif
     }
 
+    // reenable old
     if (disabled >= 0) {
-        // reenable old
         m = {disabledx, disabledy, 'P'};
         moves.push_back(m);
         #ifdef VERBOSE
             printf("enabling rook %d\n", disabled);
             print_move(&m);
         #endif
+        disabled = -1;
     }
 
     #ifdef VERBOSE
