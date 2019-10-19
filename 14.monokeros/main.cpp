@@ -21,7 +21,7 @@ void print_tree(Node* t) {
 }
 #endif
 
-unsigned int insert(Node* root, long int x, unsigned int depth) {
+unsigned int insert(Node* root, long int x) {
     Node* ins;
     if (x <= root->x) {
         if (root->l == NULL) {
@@ -30,9 +30,9 @@ unsigned int insert(Node* root, long int x, unsigned int depth) {
             ins->l = NULL;
             ins->r = NULL;
             root->l = ins;
-            return depth + 1;
+            return 1;
         } else {
-            return insert(root->l, x, depth+1);
+            return 1 + insert(root->l, x);
         }
     } else {
         if (root->r == NULL) {
@@ -41,9 +41,9 @@ unsigned int insert(Node* root, long int x, unsigned int depth) {
             ins->l = NULL;
             ins->r = NULL;
             root->r = ins;
-            return depth + 1;
+            return 1;
         } else {
-            return insert(root->r, x, depth+1);
+            return 1 + insert(root->r, x);
         }
     }
 }
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     #endif
     for (j=1; j<N; ++j) {
         std::cin >> x;
-        printf("%d\n", insert(&root, x, 1));
+        printf("%d\n", 1+ insert(&root, x));
         #ifdef VERBOSE
             print_tree(&root);
             printf("\n");

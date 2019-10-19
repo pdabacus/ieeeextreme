@@ -394,7 +394,8 @@ int main(int argc, char* argv[]) {
     }
 
     // move pivot left to correct place
-    y = posy[k2];
+    y = posy[pk2];
+    obsk2[pj] = pk2;
 
     m = {posx[pk2]--, y, 'L'};
     moves.push_back(m);
@@ -451,11 +452,65 @@ int main(int argc, char* argv[]) {
         #endif
     }
 
-    //mend = moves.end();
-    //printf("%lu\n", moves.size());
-    //for (mi=moves.begin(); mi!=mend; ++mi) {
-    //    print_move(&*mi);
-    //}
+    #ifdef VERBOSE
+        printf("moving rooks left\n");
+    #endif
+    for (j=n-1; j>=0; --j) {
+        k = indices[j];
+        k2 = obsk2[j];
+        a = destx[k];
+        //b = desty[k];
+        x = posx[k2];
+        y = posy[k2];
+        //printf("(%d,%d)->(%d,%d)\n", x, y, a, b);
+        for (j2=x; j2>a; --j2) {
+            m = {j2, y, 'L'};
+            moves.push_back(m);
+            --posx[k2];
+            #ifdef VERBOSE
+                print_move(&m);
+                print_board(n, posx, posy, destx, desty);
+            #endif
+        }
+    }
+
+    #ifdef VERBOSE
+        printf("moving rooks right\n");
+    #endif
+    for (j=0; j<n; ++j) {
+        k = indices[j];
+        k2 = obsk2[j];
+        a = destx[k];
+        x = posx[k2];
+        y = posy[k2];
+        #ifdef VERBOSE
+            b = desty[k];
+            printf("(%d,%d)->(%d,%d)\n", x, y, a, b);
+        #endif
+        for (j2=x; j2<a; ++j2) {
+            m = {j2, y, 'R'};
+            moves.push_back(m);
+            ++posx[k2];
+            #ifdef VERBOSE
+                print_move(&m);
+                print_board(n, posx, posy, destx, desty);
+            #endif
+        }
+    }
+
+    #ifdef VERBOSE
+        printf("destinations:\n");
+        print_pos(n, destx, desty);
+        printf("positions:\n");
+        print_pos(n, posx, posy);
+    #endif
+
+
+    mend = moves.end();
+    printf("%lu\n", moves.size());
+    for (mi=moves.begin(); mi!=mend; ++mi) {
+        print_move(&*mi);
+    }
 
     return 0;
 }
