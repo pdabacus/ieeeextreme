@@ -27,21 +27,78 @@ int index_of(int* arr, int x) {
 }
 
 #ifdef VERBOSE
-    void print_arr(int n, int arr[]) {
-        int j;
-        printf("[ ");
-        for (j=0; j<n; ++j) {
-            printf("%d ", arr[j]);
+void print_board(int n, int posx[], int posy[], int destx[], int desty[]) {
+    int a, b, c, d;
+    int j, k, j2;
+    char color;
+
+    // a < x < b
+    // c > y > d
+    a = posx[0];
+    b = posx[0];
+    c = posy[0];
+    d = posy[0];
+    for (j=0; j<n; ++j) {
+        if (posx[j] > b) {
+            b = posx[j];
         }
-        printf("]\n");
+        if (destx[j] > b) {
+            b = destx[j];
+        }
+        if (posx[j] < a) {
+            a = posx[j];
+        }
+        if (destx[j] < a) {
+            a = destx[j];
+        }
+        if (posy[j] > c) {
+            c = posy[j];
+        }
+        if (desty[j] > c) {
+            c = desty[j];
+        }
+        if (posy[j] < d) {
+            d = posy[j];
+        }
+        if (desty[j] < d) {
+            d = desty[j];
+        }
     }
 
-    void print_pos(int n, int posx[], int posy[]) {
-        int j;
-        for (j=0; j<n; ++j) {
-            printf("  (%d,%d)\n", posx[j], posy[j]);
+    for (j=c; j>=d; --j) {
+        printf("[");
+        for (k=a; k<=b; ++k) {
+            color = ' ';
+            for (j2=0; j2<n; ++j2) {
+                if (posx[j2] == k && posy[j2] == j) {
+                    color = 'A' + j2;
+                }
+                if (destx[j2] == k && desty[j2] == j) {
+                    color = '.';
+                }
+            }
+            printf(" %c", color);
         }
+        printf(" ]\n");
     }
+    printf("(%d,%d)\n", a, d);
+}
+
+void print_arr(int n, int arr[]) {
+    int j;
+    printf("[ ");
+    for (j=0; j<n; ++j) {
+        printf("%d ", arr[j]);
+    }
+    printf("]\n");
+}
+
+void print_pos(int n, int posx[], int posy[]) {
+    int j;
+    for (j=0; j<n; ++j) {
+        printf("  (%d,%d)\n", posx[j], posy[j]);
+    }
+}
 #endif
 
 int main(int argc, char* argv[]) {
@@ -121,6 +178,7 @@ int main(int argc, char* argv[]) {
         print_arr(n, indicesy);
         printf("positions y order: ");
         print_arr(n, indicesy2);
+        print_board(n, posx, posy, destx, desty);
     #endif
 
     #ifdef VERBOSE
@@ -132,11 +190,12 @@ int main(int argc, char* argv[]) {
         x = posx[j2];
         for (k=posy[j2]; k>y; --k) {
             m = {x, k, 'D'};
-            #ifdef VERBOSE
-                print_move(&m);
-            #endif
             moves.push_back(m);
             --posy[j2];
+            #ifdef VERBOSE
+                print_move(&m);
+                print_board(n, posx, posy, destx, desty);
+            #endif
         }
         #ifdef VERBOSE
             printf("\n");
@@ -152,11 +211,12 @@ int main(int argc, char* argv[]) {
         x = posx[j2];
         for (k=posy[j2]; k<y; ++k) {
             m = {x, k, 'U'};
-            #ifdef VERBOSE
-                print_move(&m);
-            #endif
             moves.push_back(m);
             ++posy[j2];
+            #ifdef VERBOSE
+                print_move(&m);
+                print_board(n, posx, posy, destx, desty);
+            #endif
         }
         #ifdef VERBOSE
             printf("\n");
@@ -246,6 +306,7 @@ int main(int argc, char* argv[]) {
                 #ifdef VERBOSE
                     printf("enabling rook %d\n", disabled);
                     print_move(&m);
+                    print_board(n, posx, posy, destx, desty);
                 #endif
             }
             // disable pivot
@@ -257,6 +318,7 @@ int main(int argc, char* argv[]) {
             #ifdef VERBOSE
                 printf("disabling pivot %d\n", pj);
                 print_move(&m);
+                print_board(n, posx, posy, destx, desty);
             #endif
         }
 
@@ -265,34 +327,59 @@ int main(int argc, char* argv[]) {
         y = posy[k2];
         for (j3=0; j3<x; ++j3) {
             m = {posx[k2]--, y, 'L'};
+            moves.push_back(m);
             #ifdef VERBOSE
                 print_move(&m);
+                print_board(n, posx, posy, destx, desty);
             #endif
-            moves.push_back(m);
         }
-        // obs   = [1 1 0 0 1 1 0 0 1 1] whether destj has been moved across yet
+        // obs   = [1 1 0 0 1 1 0 0 1 1] if destj has been moved across yet
         // obsk2 = [0 1 - - 2 3 - - 4 5] the k2 for each j
 
         // move next rook across obstacles
         for (j3=0; j3<j; ++j3) {
-            m = {posx[k2]--, y, 'L'};
-            #ifdef VERBOSE
-                print_move(&m);
-            #endif
-            moves.push_back(m);
+            if (obs[j3] && disabled != j3) {
+                if (disabled >= 0) {
+                    // reenable old
+                    m = {disabledx, disabledy, 'P'};
+                    moves.push_back(m);
+                    #ifdef VERBOSE
+                        printf("enabling rook %d\n", disabled);
+                        print_move(&m);
+                    #endif
+                }
+                // disable obstacle
+                disabled = j3;
+                disabledx = posx[obsk2[j3]];
+                disabledy = posy[obsk2[j3]];
+                m = {disabledx, disabledy, 'T'};
+                moves.push_back(m);
+                #ifdef VERBOSE
+                    printf("disabling obstacle %d\n", j3);
+                    print_move(&m);
+                #endif
+            }
 
             m = {posx[k2]--, y, 'L'};
+            moves.push_back(m);
             #ifdef VERBOSE
                 print_move(&m);
+                print_board(n, posx, posy, destx, desty);
             #endif
+            m = {posx[k2]--, y, 'L'};
             moves.push_back(m);
+            #ifdef VERBOSE
+                print_move(&m);
+                print_board(n, posx, posy, destx, desty);
+            #endif
         }
 
         m = {posx[k2]--, y, 'L'};
+        moves.push_back(m);
         #ifdef VERBOSE
             print_move(&m);
+            print_board(n, posx, posy, destx, desty);
         #endif
-        moves.push_back(m);
 
         // add this rook to obstacles
         obs[j] = true;
@@ -304,14 +391,68 @@ int main(int argc, char* argv[]) {
             }
             printf("]\n\n");
         #endif
+    }
 
-        //printf("  piv=%d, rookx=%d, lefts=%d+2*%d=%d\n", n-pj, n-j,
-        //    posx[k2]-posx[pk2], j-pj, posx[k2]-posx[pk2] + 2*(j-pj)
-        //);
+    // move pivot left to correct place
+    y = posy[k2];
 
+    m = {posx[pk2]--, y, 'L'};
+    moves.push_back(m);
+    #ifdef VERBOSE
+        print_move(&m);
+        print_board(n, posx, posy, destx, desty);
+    #endif
+
+    // move pivot over all obstacles
+    for (j3=0; j3<pj; ++j3) {
+        if (obs[j3] && disabled != j3) {
+            if (disabled >= 0) {
+                // reenable old
+                m = {disabledx, disabledy, 'P'};
+                moves.push_back(m);
+                #ifdef VERBOSE
+                    printf("enabling rook %d\n", disabled);
+                    print_move(&m);
+                #endif
+            }
+            // disable obstacle
+            disabled = j3;
+            disabledx = posx[obsk2[j3]];
+            disabledy = posy[obsk2[j3]];
+            m = {disabledx, disabledy, 'T'};
+            moves.push_back(m);
+            #ifdef VERBOSE
+                printf("disabling obstacle %d\n", j3);
+                print_move(&m);
+            #endif
+        }
+
+        m = {posx[pk2]--, y, 'L'};
+        moves.push_back(m);
+        #ifdef VERBOSE
+            print_move(&m);
+            print_board(n, posx, posy, destx, desty);
+        #endif
+        m = {posx[pk2]--, y, 'L'};
+        moves.push_back(m);
+        #ifdef VERBOSE
+            print_move(&m);
+            print_board(n, posx, posy, destx, desty);
+        #endif
+    }
+
+    if (disabled >= 0) {
+        // reenable old
+        m = {disabledx, disabledy, 'P'};
+        moves.push_back(m);
+        #ifdef VERBOSE
+            printf("enabling rook %d\n", disabled);
+            print_move(&m);
+        #endif
     }
 
     //mend = moves.end();
+    //printf("%lu\n", moves.size());
     //for (mi=moves.begin(); mi!=mend; ++mi) {
     //    print_move(&*mi);
     //}
