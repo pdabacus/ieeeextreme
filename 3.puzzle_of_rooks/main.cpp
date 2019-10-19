@@ -393,6 +393,18 @@ int main(int argc, char* argv[]) {
         #endif
     }
 
+    // reenable
+    if (disabled >= 0) {
+        // reenable old
+        m = {disabledx, disabledy, 'P'};
+        moves.push_back(m);
+        #ifdef VERBOSE
+            printf("enabling rook %d\n", disabled);
+            print_move(&m);
+        #endif
+        disabled = -1;
+    }
+
     // move pivot left to correct place
     y = posy[pk2];
     obsk2[pj] = pk2;

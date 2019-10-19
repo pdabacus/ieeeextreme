@@ -1,4 +1,6 @@
-
+g++ -Wall -ansi -std=c++11  -o main.o -c main.cpp
+g++ -Wall -ansi -std=c++11  -o a.out main.o 
+binary compiled: 'a.out'
 n=2
 destinations:
   (4,2)
@@ -57,12 +59,12 @@ disabling pivot 0
 (0,1)
 obs = [ 0 1 ]
 
+enabling rook 0
+4 1 P
 4 1 L
 [ B       .   ]
 [       A   . ]
 (0,1)
-enabling rook 0
-4 1 P
 moving rooks left
 moving rooks right
 (3,1)->(5,1)
@@ -104,8 +106,8 @@ positions:
 3 2 L
 2 2 L
 1 2 L
-4 1 L
 4 1 P
+4 1 L
 3 1 R
 4 1 R
 0 2 R
