@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     #endif
 
     max_len = N / a;
-    for (n=1; n<=max_len; ++n) {
+    for (n=N/b; n<=max_len; ++n) {
         min = n * a;
         max = n * b;
         #ifdef VERBOSE
