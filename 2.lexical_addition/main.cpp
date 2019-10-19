@@ -4,17 +4,17 @@
 //#define VERBOSE
 
 int main(int argc, char* argv[]) {
-    unsigned int N, a, b; // target num
-    unsigned int n;
-    unsigned int max_len;
-    unsigned int min, max;
-    unsigned int left;
-    unsigned int num_b;
-    unsigned int k;
+    unsigned long int N, a, b; // target num
+    unsigned long int n;
+    unsigned long int max_len;
+    unsigned long int min, max;
+    unsigned long int left;
+    unsigned long int num_b;
+    unsigned long int k;
 
     std::cin >> N >> a >> b;
     #ifdef VERBOSE
-        printf("N=%u, a=%u, b=%u\n", N, a, b);
+        printf("N=%lu, a=%lu, b=%lu\n", N, a, b);
     #endif
 
     max_len = N / a;
@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
         min = n * a;
         max = n * b;
         #ifdef VERBOSE
-            printf("trying length %u: %u <= N <= %u\n", n, min, max);
+            printf("trying length %lu: %lu <= N <= %lu\n", n, min, max);
         #endif
         if (min <= N && N <= max) {
             printf("YES\n");
@@ -33,14 +33,14 @@ int main(int argc, char* argv[]) {
             // left + a
             // (num_b) b's
             #ifdef VERBOSE
-                printf("num_b=%u, left=%u\n", num_b, left);
+                printf("num_b=%lu, left=%lu\n", num_b, left);
             #endif
             for (k=0; k<n-num_b-1; ++k) {
-                printf("%u ", a);
+                printf("%lu ", a);
             }
-            printf("%u ", a + left);
+            printf("%lu ", a + left);
             for (k=0; k<num_b; ++k) {
-                printf("%u ", b);
+                printf("%lu ", b);
             }
             printf("\n");
             return 0;
