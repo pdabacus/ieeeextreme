@@ -12,6 +12,10 @@ typedef struct {
     char c;
 } Move;
 
+void print_move(Move* m) {
+    printf("%d %d %c\n", m->x, m->y, m->c);
+}
+
 int index_of(int* arr, int x) {
     int j = 0;
     while (true) {
@@ -22,25 +26,23 @@ int index_of(int* arr, int x) {
     }
 }
 
-void print_move(Move* m) {
-    printf("%d %d %c\n", m->x, m->y, m->c);
-}
-
-void print_arr(int n, int arr[]) {
-    int j;
-    printf("[ ");
-    for (j=0; j<n; ++j) {
-        printf("%d ", arr[j]);
+#ifdef VERBOSE
+    void print_arr(int n, int arr[]) {
+        int j;
+        printf("[ ");
+        for (j=0; j<n; ++j) {
+            printf("%d ", arr[j]);
+        }
+        printf("]\n");
     }
-    printf("]\n");
-}
 
-void print_pos(int n, int posx[], int posy[]) {
-    int j;
-    for (j=0; j<n; ++j) {
-        printf("  (%d,%d)\n", posx[j], posy[j]);
+    void print_pos(int n, int posx[], int posy[]) {
+        int j;
+        for (j=0; j<n; ++j) {
+            printf("  (%d,%d)\n", posx[j], posy[j]);
+        }
     }
-}
+#endif
 
 int main(int argc, char* argv[]) {
     int n;
@@ -55,15 +57,17 @@ int main(int argc, char* argv[]) {
     int indicesy[10];
     int indicesy2[10];
     int maxy, maxy2, maxx, maxx2;
-    int a, b;
-    int x, x2, y;
+    int a, b, x, y;
 
     std::vector<Move> moves;
-    std::vector<Move>::iterator i, end;
+    std::vector<Move>::iterator mi, mend;
     Move m;
 
-    std::vector<int> obs;
-    std::vector<int> obs2;
+    int pj2, pk2, pj3, pk, pj;
+    int disabled = -1;
+    int disabledx, disabledy;
+    bool obs[10];
+    int obsk2[10];
 
     std::cin >> n;
     #ifdef VERBOSE
@@ -125,9 +129,9 @@ int main(int argc, char* argv[]) {
     for (j=n-1; j>=0; --j) {
         y = desty[indicesy[j]];
         j2 = indicesy2[j];
-        x2 = posx[j2];
+        x = posx[j2];
         for (k=posy[j2]; k>y; --k) {
-            m = {x2, k, 'D'};
+            m = {x, k, 'D'};
             #ifdef VERBOSE
                 print_move(&m);
             #endif
@@ -145,9 +149,9 @@ int main(int argc, char* argv[]) {
     for (j=0; j<n; ++j) {
         y = desty[indicesy[j]];
         j2 = indicesy2[j];
-        x2 = posx[j2];
+        x = posx[j2];
         for (k=posy[j2]; k<y; ++k) {
-            m = {x2, k, 'U'};
+            m = {x, k, 'U'};
             #ifdef VERBOSE
                 print_move(&m);
             #endif
@@ -216,13 +220,16 @@ int main(int argc, char* argv[]) {
         printf("\n");
     #endif
 
-    // set first obstacle as left most index
-    obs2.push_back(n-1); // j2 = n-1 = current horizontal position
-    k2 = indices2[n-1]; // left most x rook pos
-    j3 = index_of(indicesy2, k2); // y index for left most rook
-    k = indicesy[j3]; // pos of same height destination
-    j = index_of(indices, k); // target horizontal position
-    obs.push_back(j);
+    // set left most rook as pivot
+    pj2 = n-1;
+    pk2 = indices2[pj2]; // left most x rook pos
+    pj3 = index_of(indicesy2, pk2); // y index for left most rook
+    pk = indicesy[pj3]; // pos of same height destination
+    pj = index_of(indices, pk); // target horizontal position
+    for (j=0; j<n; ++j) {
+        obs[j] = 0;
+        obsk2[j] = -1;
+    }
 
     for (j2=n-2; j2>=0; --j2) {
         k2 = indices2[j2]; // next left most x rook pos
@@ -230,23 +237,83 @@ int main(int argc, char* argv[]) {
         k = indicesy[j3]; // pos of same height destination
         j = index_of(indices, k); // x index for same height destination
 
-        a = 0;
-        end = obs.end();
-        for (i=obs.begin(); i!=end; ++i) {
-            if
+        // move past pivot
+        if (disabled != pj) {
+            if (disabled >= 0) {
+                // reenable old
+                m = {disabledx, disabledy, 'P'};
+                moves.push_back(m);
+                #ifdef VERBOSE
+                    printf("enabling rook %d\n", disabled);
+                    print_move(&m);
+                #endif
+            }
+            // disable pivot
+            disabled = pj;
+            disabledx = posx[pk2];
+            disabledy = posy[pk2];
+            m = {disabledx, disabledy, 'T'};
+            moves.push_back(m);
+            #ifdef VERBOSE
+                printf("disabling pivot %d\n", pj);
+                print_move(&m);
+            #endif
         }
-        //printf("  %d->%d: dst=(%d,%d) rook=(%d,%d)\n", n-j2, n-j,
-        //    destx[k], desty[k], posx[k2], posy[k2]
-        //);
+
+        // move next rook past pivot
+        x = posx[k2] - posx[pk2] + 1;
+        y = posy[k2];
+        for (j3=0; j3<x; ++j3) {
+            m = {posx[k2]--, y, 'L'};
+            #ifdef VERBOSE
+                print_move(&m);
+            #endif
+            moves.push_back(m);
+        }
+        // obs   = [1 1 0 0 1 1 0 0 1 1] whether destj has been moved across yet
+        // obsk2 = [0 1 - - 2 3 - - 4 5] the k2 for each j
+
+        // move next rook across obstacles
+        for (j3=0; j3<j; ++j3) {
+            m = {posx[k2]--, y, 'L'};
+            #ifdef VERBOSE
+                print_move(&m);
+            #endif
+            moves.push_back(m);
+
+            m = {posx[k2]--, y, 'L'};
+            #ifdef VERBOSE
+                print_move(&m);
+            #endif
+            moves.push_back(m);
+        }
+
+        m = {posx[k2]--, y, 'L'};
+        #ifdef VERBOSE
+            print_move(&m);
+        #endif
+        moves.push_back(m);
+
+        // add this rook to obstacles
+        obs[j] = true;
+        obsk2[j] = k2;
+        #ifdef VERBOSE
+            printf("obs = [ ");
+            for (j3=0; j3<n; ++j3) {
+                printf("%d ", (int) obs[j3]);
+            }
+            printf("]\n\n");
+        #endif
 
         //printf("  piv=%d, rookx=%d, lefts=%d+2*%d=%d\n", n-pj, n-j,
         //    posx[k2]-posx[pk2], j-pj, posx[k2]-posx[pk2] + 2*(j-pj)
         //);
+
     }
 
-    //end = moves.end();
-    //for (i=moves.begin(); i!=end; ++i) {
-    //    print_move(&*i);
+    //mend = moves.end();
+    //for (mi=moves.begin(); mi!=mend; ++mi) {
+    //    print_move(&*mi);
     //}
 
     return 0;
